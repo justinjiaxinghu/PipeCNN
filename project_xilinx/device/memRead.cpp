@@ -302,7 +302,7 @@ Init:// Initialize the winbuf with the data in the first iteration of the group 
                                 //weight_write_pipe_block(weight_ch_vec);
                                 for(unsigned char ll=0; ll<LANE_NUM; ll++){
 									#pragma HLS unroll
-									for(unsigned char vv=0; vv<VEC_SIZE; vv++){ // copy weight to each lane
+									for(unsigned char vv=0; vv<VEC_SIZE / 2; vv++){ // copy weight to each lane
 										#pragma HLS unroll
 										weight_out_tmp.data(VEC_SIZE*DP_WIDTH*ll+(vv*DP_WIDTH+DP_WIDTH-1), VEC_SIZE*DP_WIDTH*ll+(vv*DP_WIDTH))=weight_ch_vec.lane[ll].data[vv];
 									}

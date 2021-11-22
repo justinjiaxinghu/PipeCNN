@@ -50,9 +50,9 @@ MACTYPE mac(lane_data input, lane_data weights)
 
     MACTYPE output = MASK_MULT & CZERO;
 
-    for(int i=0; i<VEC_SIZE; i++) {
+    for(int i=0; i<VEC_SIZE; i += 2 ) {
 		#pragma HLS unroll
-        output += input.data[i]*weights.data[i];
+        output += (input.data[i]*((weights.data[i / 2] & 0xF0) >> 2) + input.data[i + 1] * (weights.data[i / 2] & 0xF));
     }
     return output;
 }
@@ -130,7 +130,9 @@ void coreConv(
 				for(unsigned char vv=0; vv<VEC_SIZE; vv++){ // copy data_vec to each lane
 					#pragma HLS unroll
 					mac_data.lane[ll].data[vv] = data_in_tmp.data(VEC_SIZE*DP_WIDTH*ll+(vv*DP_WIDTH+DP_WIDTH-1), VEC_SIZE*DP_WIDTH*ll+(vv*DP_WIDTH));
-					mac_weight.lane[ll].data[vv] = weight_in_tmp.data(VEC_SIZE*DP_WIDTH*ll+(vv*DP_WIDTH+DP_WIDTH-1), VEC_SIZE*DP_WIDTH*ll+(vv*DP_WIDTH));
+                    if (vv < VEC_SIZE / 2) {
+					   mac_weight.lane[ll].data[vv] = weight_in_tmp.data(VEC_SIZE*DP_WIDTH*ll+(vv*DP_WIDTH+DP_WIDTH-1), VEC_SIZE*DP_WIDTH*ll+(vv*DP_WIDTH));
+                    }
 				}
             }
             //data_read_pipe_block(mac_data);

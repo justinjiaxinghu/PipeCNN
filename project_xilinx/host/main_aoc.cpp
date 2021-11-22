@@ -435,7 +435,8 @@ int main(int argc, char** argv)
 
 			weight_buf_size = layer_config[j][weight_w]*layer_config[j][weight_h]*layer_config[j][weight_n]*layer_config[j][weight_m];
 			// Weights buffers for each layer
-			weights_buf[i*LAYER_NUM+j] = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, weight_buf_size* sizeof(DTYPE), weight_conv[j], &status);
+			weights_buf[i*LAYER_NUM+j] = clCreateBuffer(context, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 
+				(weight_buf_size* sizeof(DTYPE)) / 2, weight_conv[j], &status);
 			checkError(status, "Failed to create buffer for weights in layer");
 
 			// Bias buffers for each layer
@@ -1935,7 +1936,7 @@ void reorderWeights(DTYPE *weights, DTYPE *weight_buf, unsigned dim1, unsigned d
 			for(unsigned i = 0; i<dim2; i++){
 				for(unsigned j = 0; j<dim1; j++){
 					for(unsigned ll = 0; ll<laneNum; ll++){
-						for(unsigned k = 0; k<vecSize; k++){
+						for(unsigned k = 0; k<vecSize / 2; k++){
 							weight_buf[m*dim1*dim2*dim3*laneNum + n*dim1*dim2*vecSize*laneNum + i*dim1*vecSize*laneNum + j*vecSize*laneNum + ll*vecSize + k]
 													= (DTYPE) copy_with_padding[(m*laneNum+ll)*dim3*dim2*dim1 + (n*vecSize+k)*dim1*dim2 + i*dim1 + j];
 						}
